@@ -41,7 +41,11 @@ function scrapeAndPost() {
 	console.log('START')
 	puppeteer
 		.launch()
-		.then(browser => browser.newPage())
+		.then(async browser => {
+			let page = await browser.newPage()
+			page.setDefaultNavigationTimeout(0)
+			return page
+		})
 		.then(page => {
 			return page.goto(url).then(function() {
 			return page.content();
@@ -78,7 +82,7 @@ function scrapeAndPost() {
 					T.post('statuses/update', tweet, tweeted)
 					writeUserData(name, address, appointment)
 				}
-				/*
+			/*	
 			newsHeadlines.push({
 				name: name,
 				address: address,
@@ -86,12 +90,12 @@ function scrapeAndPost() {
 			});
 			*/
 		});
-		
-		console.log('STOP');
+		setTimeout(() => {
+			scrapeAndPost()
+			}, 10000);
+			console.log('STOP');
 		})
 		.catch(console.error);
 	}
-setTimeout(() => {
-	scrapeAndPost()
-	}, 10000);
+scrapeAndPost()
 
