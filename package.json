@@ -1,0 +1,30 @@
+{
+  "name": "VAX-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paolo456/VAX-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/paolo456/VAX-app/issues"
+  },
+  "homepage": "https://github.com/paolo456/VAX-app#readme",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "cheerio": "^1.0.0-rc.5",
+    "express": "^4.17.1",
+    "firebase": "^8.2.9",
+    "lodash": "^4.17.21",
+    "morgan": "^1.10.0",
+    "puppeteer": "^8.0.0",
+    "twit": "^2.2.11"
+  }
+}
