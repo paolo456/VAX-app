@@ -40,7 +40,7 @@ function tweeted(err, data, response) {
 function scrapeAndPost() {
 	console.log('START')
 	puppeteer
-		.launch()
+		.launch({ headless: true, args:['--no-sandbox', '--disable-setuid-sandbox'] })
 		.then(async browser => {
 			let page = await browser.newPage()
 			page.setDefaultNavigationTimeout(0)
@@ -75,11 +75,11 @@ function scrapeAndPost() {
 				name = name.replaceAll('.', '').replaceAll('#', '').replaceAll('$', '').replaceAll('[', '').replaceAll(']', '')
 				let k = await database.ref().child('locations/' + name).get()
 				//console.log(k.val().appointment + ' AND ' + appointment)
-				if (k.val().appointment !== appointment && appointment !== '') {
+				if (k.val() && k.val().appointment !== appointment && appointment !== '') {
 					let tweet = {
 						status: 'Appointment availability change at ' + name + ' ' + appointment + ' https://tinyurl.com/phkb2e7n'
 					}
-					console.log('TWEET SENT: ' + tweet.text)
+					console.log('TWEET SENT: ' + tweet.status)
 					T.post('statuses/update', tweet, tweeted)
 					writeUserData(name, address, appointment)
 				}
