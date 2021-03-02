@@ -74,6 +74,7 @@ function scrapeAndPost() {
 				}
 				name = name.replaceAll('.', '').replaceAll('#', '').replaceAll('$', '').replaceAll('[', '').replaceAll(']', '')
 				let k = await database.ref().child('locations/' + name).get()
+				//console.log(k.val().appointment + ' AND ' + appointment)
 				if (k.val().appointment !== appointment && appointment !== '') {
 					let tweet = {
 						status: 'Appointment availability change at ' + name + ' ' + appointment + ' https://tinyurl.com/phkb2e7n'
@@ -92,7 +93,7 @@ function scrapeAndPost() {
 		});
 		setTimeout(() => {
 			scrapeAndPost()
-			}, 10000);
+			}, 30000);
 			console.log('STOP');
 		})
 		.catch(console.error);
