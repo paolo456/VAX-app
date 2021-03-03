@@ -40,7 +40,7 @@ function tweeted(err, data, response) {
 function scrapeAndPost() {
 	console.log('START')
 	puppeteer
-		.launch({ headless: true, args:['--no-sandbox', '--disable-setuid-sandbox'] })
+		.launch({args:['--no-sandbox']})
 		.then(async browser => {
 			let page = await browser.newPage()
 			page.setDefaultNavigationTimeout(0)
