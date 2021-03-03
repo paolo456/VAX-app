@@ -5,6 +5,18 @@ const Twit = require('twit');
 const config = require('./config')
 const firebase = require('firebase')
 
+const express = require('express')
+const path = require('path')
+const PORT = process.env.PORT || 5000
+
+express()
+	.use(express.static(path.join(__dirname, 'public')))
+	.set('views', path.join(__dirname, 'views'))
+	.set('view engine', 'ejs')
+	.get('/', (req, res) => res.render('pages/index'))
+	.listen(PORT, () => console.log(`Listening on ${ PORT }`))
+
+
 console.log(config)
 
 const url = 'http://publichealth.lacounty.gov/acd/ncorona2019/vaccine/hcwsignup/';
@@ -112,7 +124,6 @@ function scrapeAndPost() {
 				} catch (error) {
 					console.log(error)
 				}
-				
 		});
 		setTimeout(() => {
 			scrapeAndPost()
@@ -121,5 +132,6 @@ function scrapeAndPost() {
 		})
 		.catch(console.error);
 	}
+	
 scrapeAndPost()
 
