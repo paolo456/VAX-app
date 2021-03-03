@@ -84,10 +84,9 @@ function scrapeAndPost() {
 					console.log(appointment)
 					console.log(' ---------- ')
 				}
-				
-				name = name.replaceAll('.', '').replaceAll('#', '').replaceAll('$', '').replaceAll('[', '').replaceAll(']', '')
 				if (!name || !address || !appointment)
 					return 
+				name = name.replaceAll('.', '').replaceAll('#', '').replaceAll('$', '').replaceAll('[', '').replaceAll(']', '')
 				let k = await database.ref().child('locations/' + name).get()
 				if (!k.val()) {
 					writeUserData(name, address, appointment)
