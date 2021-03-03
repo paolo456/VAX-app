@@ -122,7 +122,7 @@ function scrapeAndPost() {
 		});
 		setTimeout(() => {
 			scrapeAndPost()
-			}, 30000);
+			}, 600000);
 			console.log('STOP');
 		})
 		.catch(console.error);
