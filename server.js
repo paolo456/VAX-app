@@ -58,7 +58,6 @@ function scrapeAndPost() {
 			});
 		})
 		.then(html => {
-			let logs = document.createElement('div')
 			const $ = cheerio.load(html);
 			const newsHeadlines = [];
 			$('.ds-8').each(async function() {
@@ -77,7 +76,6 @@ function scrapeAndPost() {
 						console.log(address)
 						console.log(appointment)
 						console.log(' ---------- ')
-						logs.textContent = $(this).text() + '\n' + name + '\n' + address + '\n' + appointment + ' ---------- '
 					}
 						
 					if ($(this).text().includes('Pfizer')) {
@@ -90,7 +88,6 @@ function scrapeAndPost() {
 						console.log(address)
 						console.log(appointment)
 						console.log(' ---------- ')
-						logs.textContent = $(this).text() + '\n' + name + '\n' + address + '\n' + appointment + ' ---------- '
 					}
 					if (!name || !address || !appointment)
 						return 
@@ -109,7 +106,6 @@ function scrapeAndPost() {
 						T.post('statuses/update', tweet, tweeted)
 						writeUserData(name, address, appointment)
 					}
-					document.append(logs)
 				/*	
 				newsHeadlines.push({
 					name: name,
