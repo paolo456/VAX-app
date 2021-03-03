@@ -55,59 +55,64 @@ function scrapeAndPost() {
 			const $ = cheerio.load(html);
 			const newsHeadlines = [];
 			$('.ds-8').each(async function() {
-				let name
-				let tempAddress 
-				let address = null
-				let appointment
-				if ($(this).text().includes('Moderna')) {
-					name = $(this).text().split('Moderna')[0]
-					tempAddress = $(this).text().split('Moderna')[1]
-					tempAddress ? address = tempAddress.split(/ \d{5}/)[0] + tempAddress.match(/ \d{5}/) : null
-					tempAddress ? appointment = tempAddress.split(/ \d{5}/)[1] : ''
-					console.log($(this).text())
-					console.log(name)
-					console.log(tempAddress)
-					console.log(address)
-					console.log(appointment)
-					console.log(' ---------- ')
-				}
-					
-				if ($(this).text().includes('Pfizer')) {
-					name = $(this).text().split('Pfizer')[0]
-					tempAddress = $(this).text().split('Pfizer')[1]
-					tempAddress ? address = tempAddress.split(/ \d{5}/)[0] + tempAddress.match(/ \d{5}/) : null
-					tempAddress ? appointment = tempAddress.split(/ \d{5}/)[1] : ''
-					console.log($(this).text())
-					console.log(name)
-					console.log(tempAddress)
-					console.log(address)
-					console.log(appointment)
-					console.log(' ---------- ')
-				}
-				if (!name || !address || !appointment)
-					return 
-				name = name.replaceAll('.', '').replaceAll('#', '').replaceAll('$', '').replaceAll('[', '').replaceAll(']', '')
-				let k = await database.ref().child('locations/' + name).get()
-				if (!k.val()) {
-					writeUserData(name, address, appointment)
-					return
-				}
-				//console.log(k.val().appointment + ' AND ' + appointment)
-				if (k.val() && k.val().appointment !== appointment && appointment !== undefined) {
-					let tweet = {
-						status: 'Appointment availability change at ' + name + ' ' + appointment + ' https://tinyurl.com/phkb2e7n'
+				try {
+					let name
+					let tempAddress 
+					let address = null
+					let appointment
+					if ($(this).text().includes('Moderna')) {
+						name = $(this).text().split('Moderna')[0]
+						tempAddress = $(this).text().split('Moderna')[1]
+						tempAddress ? address = tempAddress.split(/ \d{5}/)[0] + tempAddress.match(/ \d{5}/) : null
+						tempAddress ? appointment = tempAddress.split(/ \d{5}/)[1] : ''
+						console.log($(this).text())
+						console.log(name)
+						console.log(tempAddress)
+						console.log(address)
+						console.log(appointment)
+						console.log(' ---------- ')
 					}
-					console.log('TWEET SENT: ' + tweet.status)
-					T.post('statuses/update', tweet, tweeted)
-					writeUserData(name, address, appointment)
+						
+					if ($(this).text().includes('Pfizer')) {
+						name = $(this).text().split('Pfizer')[0]
+						tempAddress = $(this).text().split('Pfizer')[1]
+						tempAddress ? address = tempAddress.split(/ \d{5}/)[0] + tempAddress.match(/ \d{5}/) : null
+						tempAddress ? appointment = tempAddress.split(/ \d{5}/)[1] : ''
+						console.log($(this).text())
+						console.log(name)
+						console.log(tempAddress)
+						console.log(address)
+						console.log(appointment)
+						console.log(' ---------- ')
+					}
+					if (!name || !address || !appointment)
+						return 
+					name = name.replaceAll('.', '').replaceAll('#', '').replaceAll('$', '').replaceAll('[', '').replaceAll(']', '')
+					let k = await database.ref().child('locations/' + name).get()
+					if (!k.val()) {
+						writeUserData(name, address, appointment)
+						return
+					}
+					//console.log(k.val().appointment + ' AND ' + appointment)
+					if (k.val() && k.val().appointment !== appointment && appointment !== undefined) {
+						let tweet = {
+							status: 'Appointment availability change at ' + name + ' ' + appointment + ' https://tinyurl.com/phkb2e7n'
+						}
+						console.log('TWEET SENT: ' + tweet.status)
+						T.post('statuses/update', tweet, tweeted)
+						writeUserData(name, address, appointment)
+					}
+				/*	
+				newsHeadlines.push({
+					name: name,
+					address: address,
+					appointment: appointment
+				});
+				*/
+				} catch (error) {
+					console.log(error)
 				}
-			/*	
-			newsHeadlines.push({
-				name: name,
-				address: address,
-				appointment: appointment
-			});
-			*/
+				
 		});
 		setTimeout(() => {
 			scrapeAndPost()
