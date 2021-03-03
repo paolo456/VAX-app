@@ -61,21 +61,40 @@ function scrapeAndPost() {
 				let appointment
 				if ($(this).text().includes('Moderna')) {
 					name = $(this).text().split('Moderna')[0]
-					tempAddress = $(this).text().split('Moderna')[1].split('Show on map')[1]
+					tempAddress = $(this).text().split('Moderna')[1]
 					tempAddress ? address = tempAddress.split(/ \d{5}/)[0] + tempAddress.match(/ \d{5}/) : null
 					tempAddress ? appointment = tempAddress.split(/ \d{5}/)[1] : ''
+					console.log($(this).text())
+					console.log(name)
+					console.log(tempAddress)
+					console.log(address)
+					console.log(appointment)
+					console.log(' ---------- ')
 				}
 					
 				if ($(this).text().includes('Pfizer')) {
 					name = $(this).text().split('Pfizer')[0]
-					tempAddress = $(this).text().split('Pfizer')[1].split('Show on map')[1]
+					tempAddress = $(this).text().split('Pfizer')[1]
 					tempAddress ? address = tempAddress.split(/ \d{5}/)[0] + tempAddress.match(/ \d{5}/) : null
 					tempAddress ? appointment = tempAddress.split(/ \d{5}/)[1] : ''
+					console.log($(this).text())
+					console.log(name)
+					console.log(tempAddress)
+					console.log(address)
+					console.log(appointment)
+					console.log(' ---------- ')
 				}
+				
 				name = name.replaceAll('.', '').replaceAll('#', '').replaceAll('$', '').replaceAll('[', '').replaceAll(']', '')
+				if (!name || !address || !appointment)
+					return 
 				let k = await database.ref().child('locations/' + name).get()
+				if (!k.val()) {
+					writeUserData(name, address, appointment)
+					return
+				}
 				//console.log(k.val().appointment + ' AND ' + appointment)
-				if (k.val() && k.val().appointment !== appointment && appointment !== '') {
+				if (k.val() && k.val().appointment !== appointment && appointment !== undefined) {
 					let tweet = {
 						status: 'Appointment availability change at ' + name + ' ' + appointment + ' https://tinyurl.com/phkb2e7n'
 					}
