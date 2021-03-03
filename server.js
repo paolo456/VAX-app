@@ -12,7 +12,6 @@ const PORT = process.env.PORT || 5000
 express().listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
 
-console.log(config)
 
 const url = 'http://publichealth.lacounty.gov/acd/ncorona2019/vaccine/hcwsignup/';
 const bearer = 'AAAAAAAAAAAAAAAAAAAAAOewNAEAAAAA9GMOdM61RnnbrX9ZJb1BlZICy6A%3Dzjy0a9BOBWgzgCeEaIPjMW4OpmN5fdO5sknlnJzpC2mpOL667s'
@@ -59,6 +58,7 @@ function scrapeAndPost() {
 			});
 		})
 		.then(html => {
+			let logs = document.createElement('div')
 			const $ = cheerio.load(html);
 			const newsHeadlines = [];
 			$('.ds-8').each(async function() {
@@ -74,10 +74,10 @@ function scrapeAndPost() {
 						tempAddress ? appointment = tempAddress.split(/ \d{5}/)[1] : ''
 						console.log($(this).text())
 						console.log(name)
-						console.log(tempAddress)
 						console.log(address)
 						console.log(appointment)
 						console.log(' ---------- ')
+						logs.textContent = $(this).text() + '\n' + name + '\n' + address + '\n' + appointment + ' ---------- '
 					}
 						
 					if ($(this).text().includes('Pfizer')) {
@@ -87,10 +87,10 @@ function scrapeAndPost() {
 						tempAddress ? appointment = tempAddress.split(/ \d{5}/)[1] : ''
 						console.log($(this).text())
 						console.log(name)
-						console.log(tempAddress)
 						console.log(address)
 						console.log(appointment)
 						console.log(' ---------- ')
+						logs.textContent = $(this).text() + '\n' + name + '\n' + address + '\n' + appointment + ' ---------- '
 					}
 					if (!name || !address || !appointment)
 						return 
@@ -109,6 +109,7 @@ function scrapeAndPost() {
 						T.post('statuses/update', tweet, tweeted)
 						writeUserData(name, address, appointment)
 					}
+					document.append(logs)
 				/*	
 				newsHeadlines.push({
 					name: name,
