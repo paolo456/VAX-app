@@ -11,9 +11,7 @@ const PORT = process.env.PORT || 5000
 
 let app = express()
 app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
-app.get('/', function (req, res) {
-	res.send('Connected!');
-  })
+
 
 
 const url = 'http://publichealth.lacounty.gov/acd/ncorona2019/vaccine/hcwsignup/';
@@ -74,11 +72,6 @@ function scrapeAndPost() {
 						tempAddress = $(this).text().split('Moderna')[1]
 						tempAddress ? address = tempAddress.split(/ \d{5}/)[0] + tempAddress.match(/ \d{5}/) : null
 						tempAddress ? appointment = tempAddress.split(/ \d{5}/)[1] : ''
-						console.log($(this).text())
-						console.log(name)
-						console.log(address)
-						console.log(appointment)
-						console.log(' ---------- ')
 					}
 						
 					if ($(this).text().includes('Pfizer')) {
@@ -86,11 +79,6 @@ function scrapeAndPost() {
 						tempAddress = $(this).text().split('Pfizer')[1]
 						tempAddress ? address = tempAddress.split(/ \d{5}/)[0] + tempAddress.match(/ \d{5}/) : null
 						tempAddress ? appointment = tempAddress.split(/ \d{5}/)[1] : ''
-						console.log($(this).text())
-						console.log(name)
-						console.log(address)
-						console.log(appointment)
-						console.log(' ---------- ')
 					}
 					if (!name || !address || !appointment)
 						return 
@@ -100,7 +88,6 @@ function scrapeAndPost() {
 						writeUserData(name, address, appointment)
 						return
 					}
-					//console.log(k.val().appointment + ' AND ' + appointment)
 					if (k.val() && k.val().appointment !== appointment && appointment !== undefined) {
 						let tweet = {
 							status: 'Appointment availability change at ' + name + ' ' + appointment + ' https://tinyurl.com/phkb2e7n'
@@ -109,20 +96,22 @@ function scrapeAndPost() {
 						T.post('statuses/update', tweet, tweeted)
 						writeUserData(name, address, appointment)
 					}
-				/*	
 				newsHeadlines.push({
 					name: name,
 					address: address,
 					appointment: appointment
 				});
-				*/
-				} catch (error) {
+			} catch (error) {
 					console.log(error)
 				}
 		});
 		setTimeout(() => {
 			scrapeAndPost()
 			}, 600000);
+			app.get('/', function (req, res) {
+				res.send(newsHeadlines);
+				res.end()
+			})
 			console.log('STOP');
 		})
 		.catch(console.error);
