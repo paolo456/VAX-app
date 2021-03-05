@@ -1,4 +1,3 @@
-const axios = require('axios');
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
 const Twit = require('twit');
@@ -6,7 +5,6 @@ const config = require('./config')
 const firebase = require('firebase')
 
 const express = require('express')
-const path = require('path')
 const PORT = process.env.PORT || 5000
 
 let app = express()
@@ -33,18 +31,16 @@ var firebaseConfig = {
 	  appointment: appointment
 	})
   }
-  var database = firebase.database();
+var database = firebase.database();
 
-
-  
 var T = new Twit(config)
-
 
 function tweeted(err, data, response) {
 	console.log(data)
 }
-
+let timer
 function scrapeAndPost() {
+	clearTimeout(timer)
 	console.log('START')
 	puppeteer
 		.launch({ headless: true, args:['--no-sandbox'] })
@@ -55,7 +51,7 @@ function scrapeAndPost() {
 		})
 		.then(page => {
 			return page.goto(url).then(function() {
-			return page.content();
+				return page.content();
 			});
 		})
 		.then(html => {
@@ -63,10 +59,19 @@ function scrapeAndPost() {
 			const newsHeadlines = [];
 			$('.ds-8').each(async function() {
 				try {
+					let url
 					let name
 					let tempAddress 
 					let address = null
 					let appointment
+					let link = $(this).find('.card-footer')
+					link[0].children.forEach(element => {
+						if (element.attribs.href) {
+							if (element.attribs.href.includes('https')) {
+								url = element.attribs.href
+							}
+						}
+					});
 					if ($(this).text().includes('Moderna')) {
 						name = $(this).text().split('Moderna')[0]
 						tempAddress = $(this).text().split('Moderna')[1]
@@ -90,29 +95,31 @@ function scrapeAndPost() {
 					}
 					if (k.val() && k.val().appointment !== appointment && appointment !== undefined) {
 						let tweet = {
-							status: 'Appointment availability change at ' + name + ' ' + appointment + ' https://tinyurl.com/phkb2e7n'
+							status: 'Appointment availability change at ' + address + ' Availablility: ' + appointment + ' Click here: ' + url
 						}
 						console.log('TWEET SENT: ' + tweet.status)
 						T.post('statuses/update', tweet, tweeted)
 						writeUserData(name, address, appointment)
 					}
-				newsHeadlines.push({
-					name: name,
-					address: address,
-					appointment: appointment
-				});
+					newsHeadlines.push({
+						name: name,
+						address: address,
+						appointment: appointment
+					});
 			} catch (error) {
 					console.log(error)
 				}
 		});
-		setTimeout(() => {
+		timer = setTimeout(() => {
 			scrapeAndPost()
-			}, 600000);
+			}, 10000);
 			app.get('/', function (req, res) {
 				res.send(newsHeadlines);
 				res.end()
 			})
 			console.log('STOP');
+			const used = process.memoryUsage().heapUsed / 1024 / 1024; 
+			console.log(`The script uses approximately ${used} MB`);
 		})
 		.catch(console.error);
 	}
