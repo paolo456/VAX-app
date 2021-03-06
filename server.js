@@ -12,7 +12,7 @@ app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
 
 
-const url = 'http://publichealth.lacounty.gov/acd/ncorona2019/vaccine/hcwsignup/';
+const publichealthURL = 'http://publichealth.lacounty.gov/acd/ncorona2019/vaccine/hcwsignup/';
 const bearer = 'AAAAAAAAAAAAAAAAAAAAAOewNAEAAAAA9GMOdM61RnnbrX9ZJb1BlZICy6A%3Dzjy0a9BOBWgzgCeEaIPjMW4OpmN5fdO5sknlnJzpC2mpOL667s'
 var firebaseConfig = {
     apiKey: "AIzaSyDnSlmhfPtMkAPkC5b_8OVxGB1EvwLwJBw",
@@ -25,22 +25,18 @@ var firebaseConfig = {
   };
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
-  function writeUserData(userId, address, appointment) {
+function writeUserData(userId, address, appointment) {
 	firebase.database().ref('locations/' + userId).set({
 	  address: address,
 	  appointment: appointment
 	})
-  }
+}
 var database = firebase.database();
-
-var T = new Twit(config)
 
 function tweeted(err, data, response) {
 	console.log(data)
 }
-let timer
 function scrapeAndPost() {
-	clearTimeout(timer)
 	console.log('START')
 	puppeteer
 		.launch({ headless: true, args:['--no-sandbox'] })
@@ -50,7 +46,7 @@ function scrapeAndPost() {
 			return page
 		})
 		.then(page => {
-			return page.goto(url).then(function() {
+			return page.goto(publichealthURL).then(function() {
 				return page.content();
 			});
 		})
@@ -64,14 +60,10 @@ function scrapeAndPost() {
 					let tempAddress 
 					let address = null
 					let appointment
-					let link = $(this).find('.card-footer')
-					link[0].children.forEach(element => {
-						if (element.attribs.href) {
-							if (element.attribs.href.includes('https')) {
-								url = element.attribs.href
-							}
-						}
-					});
+					let link = $(this).find('.card-body')
+					let finalLink = $(link).find('div > ul > li > a')
+					if (finalLink.length > 0)
+						url = finalLink[0].attribs.href
 					if ($(this).text().includes('Moderna')) {
 						name = $(this).text().split('Moderna')[0]
 						tempAddress = $(this).text().split('Moderna')[1]
@@ -88,6 +80,7 @@ function scrapeAndPost() {
 					if (!name || !address || !appointment)
 						return 
 					name = name.replace(/[\$]/g, '').replace(/[\.]/g, '').replace(/[\#]/g, '').replace(/[\[\]]/g, '')
+					
 					let k = await database.ref().child('locations/' + name).get()
 					if (!k.val()) {
 						writeUserData(name, address, appointment)
@@ -95,12 +88,14 @@ function scrapeAndPost() {
 					}
 					if (k.val() && k.val().appointment !== appointment && appointment !== undefined) {
 						let tweet = {
-							status: 'Appointment availability change at ' + address + ' Availablility: ' + appointment + ' Click here: ' + url
+							status: 'Appointment availability change at ' + address + ' Availablility: ' + appointment + (url ? ' Click here: ' + url : '')
 						}
+						var T = new Twit(config)
 						console.log('TWEET SENT: ' + tweet.status)
 						T.post('statuses/update', tweet, tweeted)
 						writeUserData(name, address, appointment)
 					}
+					
 					newsHeadlines.push({
 						name: name,
 						address: address,
@@ -110,19 +105,19 @@ function scrapeAndPost() {
 					console.log(error)
 				}
 		});
-		timer = setTimeout(() => {
-			scrapeAndPost()
-			}, 10000);
 			app.get('/', function (req, res) {
 				res.send(newsHeadlines);
 				res.end()
 			})
+		})
+		.catch(console.error);
+		setTimeout(() => {
+			scrapeAndPost()
+			}, 21600000);
 			console.log('STOP');
 			const used = process.memoryUsage().heapUsed / 1024 / 1024; 
 			console.log(`The script uses approximately ${used} MB`);
-		})
-		.catch(console.error);
-	}
+}
 	
 scrapeAndPost()
 
