@@ -104,13 +104,16 @@ async function scrapeAndPost() {
 			} catch (error) {
 				console.log(error)
 			}
-			
+			app.get('/', function (req, res) {
+				res.send('BOT ACTIVE')
+				res.end()
+			  })
 		})
 		.catch(console.error);
 		
 		setTimeout(() => {
 			scrapeAndPost()
-			}, 15000);
+			}, 30000);
 			//21600000
 			console.log('STOP');
 			const used = process.memoryUsage().heapUsed / 1024 / 1024; 
