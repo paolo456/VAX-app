@@ -10,8 +10,6 @@ const PORT = process.env.PORT || 5000
 let app = express()
 app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
-
-
 const publichealthURL = 'http://publichealth.lacounty.gov/acd/ncorona2019/vaccine/hcwsignup/';
 const bearer = 'AAAAAAAAAAAAAAAAAAAAAOewNAEAAAAA9GMOdM61RnnbrX9ZJb1BlZICy6A%3Dzjy0a9BOBWgzgCeEaIPjMW4OpmN5fdO5sknlnJzpC2mpOL667s'
 var firebaseConfig = {
@@ -36,7 +34,7 @@ var database = firebase.database();
 function tweeted(err, data, response) {
 	console.log(data)
 }
-function scrapeAndPost() {
+async function scrapeAndPost() {
 	console.log('START')
 	puppeteer
 		.launch({ headless: true, args:['--no-sandbox'] })
@@ -51,10 +49,9 @@ function scrapeAndPost() {
 			});
 		})
 		.then(html => {
-			const $ = cheerio.load(html);
-			const newsHeadlines = [];
+			let $ = cheerio.load(html);
+			let newsHeadlines = [];
 			$('.ds-8').each(async function() {
-				try {
 					let url
 					let name
 					let tempAddress 
@@ -95,25 +92,22 @@ function scrapeAndPost() {
 						T.post('statuses/update', tweet, tweeted)
 						writeUserData(name, address, appointment)
 					}
-					
-					newsHeadlines.push({
-						name: name,
-						address: address,
-						appointment: appointment
-					});
-			} catch (error) {
-					console.log(error)
-				}
+					url = null 
+					name = null
+					tempAddress = null 
+					address = null
+					appointment = null
+					link = null
+					finalLink = null
+					$ = null
 		});
-			app.get('/', function (req, res) {
-				res.send(newsHeadlines);
-				res.end()
-			})
 		})
 		.catch(console.error);
+		
 		setTimeout(() => {
 			scrapeAndPost()
-			}, 21600000);
+			}, 5000);
+			//21600000
 			console.log('STOP');
 			const used = process.memoryUsage().heapUsed / 1024 / 1024; 
 			console.log(`The script uses approximately ${used} MB`);
