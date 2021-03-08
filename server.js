@@ -99,7 +99,7 @@ async function scrapeAndPost() {
 			finally {
 				setTimeout(() => {
 					scrapeAndPost()
-					}, 30000);
+					}, 3600000);
 					console.log('STOP');
 					const used = process.memoryUsage().heapUsed / 1024 / 1024; 
 					console.log(`The script uses approximately ${used} MB`);
