@@ -50,8 +50,8 @@ async function scrapeAndPost() {
 		})
 		.then(html => {
 			let $ = cheerio.load(html);
-			let newsHeadlines = [];
-			$('.ds-8').each(async function() {
+			try {
+				$('.ds-8').each(async function() {
 					let url
 					let name
 					let tempAddress 
@@ -100,13 +100,17 @@ async function scrapeAndPost() {
 					link = null
 					finalLink = null
 					$ = null
-		});
+				});
+			} catch (error) {
+				console.log(error)
+			}
+			
 		})
 		.catch(console.error);
 		
 		setTimeout(() => {
 			scrapeAndPost()
-			}, 5000);
+			}, 15000);
 			//21600000
 			console.log('STOP');
 			const used = process.memoryUsage().heapUsed / 1024 / 1024; 
