@@ -2,6 +2,7 @@ const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
 const Twit = require('twit');
 const config = require('./config')
+const firebaseConfig = require('./firebaseConfig')
 const firebase = require('firebase')
 
 const express = require('express')
@@ -11,16 +12,7 @@ let app = express()
 app.listen(PORT, () => console.log(`Listening on ${ PORT }`))
 
 const publichealthURL = 'http://publichealth.lacounty.gov/acd/ncorona2019/vaccine/hcwsignup/';
-const bearer = 'AAAAAAAAAAAAAAAAAAAAAOewNAEAAAAA9GMOdM61RnnbrX9ZJb1BlZICy6A%3Dzjy0a9BOBWgzgCeEaIPjMW4OpmN5fdO5sknlnJzpC2mpOL667s'
-var firebaseConfig = {
-    apiKey: "AIzaSyDnSlmhfPtMkAPkC5b_8OVxGB1EvwLwJBw",
-    authDomain: "vaxdb-ac3f3.firebaseapp.com",
-    projectId: "vaxdb-ac3f3",
-    storageBucket: "vaxdb-ac3f3.appspot.com",
-    messagingSenderId: "169100254110",
-    appId: "1:169100254110:web:7271ba3d3ce888b9c5548f",
-    measurementId: "G-BZVP2H4XHM"
-  };
+
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
 function writeUserData(userId, address, appointment) {
@@ -104,20 +96,20 @@ async function scrapeAndPost() {
 			} catch (error) {
 				console.log(error)
 			}
+			finally {
+				setTimeout(() => {
+					scrapeAndPost()
+					}, 30000);
+					console.log('STOP');
+					const used = process.memoryUsage().heapUsed / 1024 / 1024; 
+					console.log(`The script uses approximately ${used} MB`);
+			}
 			app.get('/', function (req, res) {
 				res.send('BOT ACTIVE')
 				res.end()
 			  })
 		})
 		.catch(console.error);
-		
-		setTimeout(() => {
-			scrapeAndPost()
-			}, 30000);
-			//21600000
-			console.log('STOP');
-			const used = process.memoryUsage().heapUsed / 1024 / 1024; 
-			console.log(`The script uses approximately ${used} MB`);
 }
 	
 scrapeAndPost()
