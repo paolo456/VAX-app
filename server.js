@@ -75,7 +75,7 @@ async function scrapeAndPost() {
 						writeUserData(name, address, appointment)
 						return
 					}
-					if (k.val() && k.val().appointment !== appointment && appointment !== undefined) {
+					if (k.val() && k.val().appointment !== appointment && appointment !== undefined && url) {
 						let tweet = {
 							status: 'Appointment availability change at ' + address + ' Availablility: ' + appointment + (url ? ' Click here: ' + url : '')
 						}
