@@ -44,6 +44,7 @@ async function scrapeAndPost() {
 			let $ = cheerio.load(html);
 			try {
 				$('.ds-8').each(async function() {
+					console.log($(this).text())
 					let url
 					let name
 					let tempAddress 
